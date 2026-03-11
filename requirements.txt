@@ -2,6 +2,7 @@ flask==3.0.3
 werkzeug==3.0.3
 pillow==10.4.0
 numpy==1.26.4
+gunicorn==23.0.0
 
 # NOTE: TensorFlow is large and may not deploy on Vercel serverless.
 tensorflow==2.17.0
