@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Sugarcane Diseases Detector</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+  <style>
+    /* Global Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Background */
+    body {
+      background: url("{{ url_for('static', filename='sugarcane_bg.jpeg') }}") no-repeat center center fixed;
+      background-size: cover;
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Overlay for glass effect */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(5px);
+      z-index: 0;
+    }
+
+    /* Navigation Bar */
+    .nav {
+      width: 100%;
+      padding: 15px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 60, 0, 0.85);
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-left {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #d4ffb2;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      color: #b9ffb6;
+    }
+
+    /* Hero Section */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 130px;
+      text-align: center;
+      z-index: 2;
+      padding: 30px;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      color: #054a29;
+      font-weight: 700;
+      text-shadow: 1px 1px 5px rgba(255, 255, 255, 0.8);
+      margin-bottom: 15px;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: #1a1a1a;
+      max-width: 800px;
+      margin-bottom: 50px;
+      line-height: 1.7;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 15px 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Upload Card */
+    .card {
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 20px;
+      padding: 40px;
+      width: 400px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      z-index: 3;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .upload-icon {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: #2e7d32;
+    }
+
+    .browse {
+      color: #1b5e20;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 15px;
+      font-size: 1rem;
+    }
+
+    input[type="file"] {
+      margin-bottom: 20px;
+      border: none;
+      background: #f0f0f0;
+      border-radius: 6px;
+      padding: 8px;
+    }
+
+    .btn {
+      background: #2e7d32;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 1rem;
+    }
+
+    .btn:hover {
+      background: #256528;
+    }
+
+    .camera-btn {
+      margin-top: 15px;
+      background: #388e3c;
+      color: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .camera-btn:hover {
+      background: #2c6d2f;
+    }
+
+    #cameraSection {
+      display: none;
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    #camera {
+      width: 100%;
+      max-width: 350px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    #capture {
+      background: #1976D2;
+      color: white;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #capture:hover {
+      background: #0d47a1;
+    }
+
+    #preview {
+      max-width: 100%;
+      margin-top: 10px;
+      border-radius: 10px;
+      display: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 20px 0;
+      color: #fff;
+      background: rgba(0, 60, 0, 0.8);
+      font-size: 0.9rem;
+      position: relative;
+      margin-top: 60px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <header class="nav">
+    <div class="nav-left">🌿 Crop Checkup</div>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#predict">Prediction</a>
+      <a href="#">About</a>
+      <a href="#">Services</a>
+      <a href="#">Contact</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="hero">
+    <h1>Sugarcane Diseases Detector</h1>
+    <p>
+      Empowering farmers with intelligent crop diagnostics — our AI-driven system
+      detects and classifies sugarcane leaf diseases instantly, enhancing productivity
+      and sustainability.
+    </p>
+
+    <!-- Prediction Card -->
+    <section class="card" id="predict">
+      <form id="uploadForm" action="/predict" method="post" enctype="multipart/form-data">
+        <div class="upload-icon">⬇️</div>
+        <label class="browse">Upload an Image for Detection</label>
+
+        <input
+          type="file"
+          id="fileInput"
+          name="file"
+          accept="image/*"
+          onchange="previewFile(event)"
+        >
+
+        <img id="preview" alt="preview" />
+
+        <button class="btn" type="submit">Detect Disease</button>
+      </form>
+
+      <button class="camera-btn" onclick="toggleCamera()">📷 Use Camera</button>
+
+      <div id="cameraSection">
+        <video id="camera" autoplay></video><br>
+        <button id="capture">Capture</button>
+        <canvas id="canvas" style="display:none;"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    © 2025 Crop Checkup | AI-Powered Sugarcane Disease Detection
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    function previewFile(evt) {
+      const file = evt.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = document.getElementById('preview');
+        img.src = e.target.result;
+        img.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function toggleCamera() {
+      const section = document.getElementById('cameraSection');
+      section.style.display = section.style.display === "none" ? "block" : "none";
+
+      if (section.style.display === "block") {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(stream => {
+            document.getElementById('camera').srcObject = stream;
+          })
+          .catch(err => alert("Camera access denied: " + err));
+      }
+    }
+
+    document.getElementById('capture').addEventListener('click', function () {
+      const video = document.getElementById('camera');
+      const canvas = document.getElementById('canvas');
+      const context = canvas.getContext('2d');
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const dataURL = canvas.toDataURL('image/png');
+      const preview = document.getElementById('preview');
+      preview.src = dataURL;
+      preview.style.display = 'block';
+
+      fetch(dataURL)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], "capture.png", { type: "image/png" });
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          document.getElementById('fileInput').files = dataTransfer.files;
+        });
+    });
+  </script>
+
+</body>
+</html>

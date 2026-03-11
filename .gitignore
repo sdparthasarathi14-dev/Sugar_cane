@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs / artifacts
+*.log
+outputs/logs/
+
+# Local datasets / uploads / generated images
+src/dataset/
+src/webapp/uploads/
+src/webapp/results/
+src/webapp/static/uploads/
+
+# Optional: keep trained models out of git if you prefer (uncomment)
+# outputs/models/*.keras
+

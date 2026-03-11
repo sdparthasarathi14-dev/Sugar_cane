@@ -1,0 +1,8 @@
+Brown_rust
+Healthy
+Mosaic
+RedRot
+Smut
+Viral_disease
+YellowLeaf
+sett_rot
