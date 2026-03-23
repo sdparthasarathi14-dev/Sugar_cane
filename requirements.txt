@@ -4,6 +4,5 @@ pillow==10.4.0
 numpy==1.26.4
 gunicorn==23.0.0
 
-# NOTE: TensorFlow is large and may not deploy on Vercel serverless.
-tensorflow-cpu==2.17.0
-
+# Use tflite-runtime instead of full tensorflow to avoid memory spikes and 502s
+tflite-runtime==2.14.0

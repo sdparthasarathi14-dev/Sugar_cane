@@ -10,7 +10,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 from PIL import Image
-import tensorflow as tf
+try:
+    import tflite_runtime.interpreter as tflite
+except ImportError:
+    import tensorflow.lite as tflite
 
 # ---------------- Config ----------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))           # src/webapp
@@ -31,7 +34,7 @@ app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024  # 8 MB
 
 # ---------------- Load model & classes ----------------
 print("Loading model...")
-interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+interpreter = tflite.Interpreter(model_path=MODEL_PATH, num_threads=1)
 interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
