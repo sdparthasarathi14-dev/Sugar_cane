@@ -2,6 +2,11 @@ import os
 import json
 import numpy as np
 from datetime import datetime
+
+# Optimize TensorFlow memory usage for lightweight free tiers
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 from PIL import Image
