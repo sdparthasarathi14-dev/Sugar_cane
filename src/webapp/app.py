@@ -15,7 +15,7 @@ import tensorflow as tf
 # ---------------- Config ----------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))           # src/webapp
 PROJECT_ROOT = os.path.normpath(os.path.join(BASE_DIR, "..", ".."))
-MODEL_PATH = os.path.join(PROJECT_ROOT, "outputs", "models", "hybrid_final.keras")
+MODEL_PATH = os.path.join(PROJECT_ROOT, "outputs", "models", "hybrid_final.tflite")
 CLASS_JSON = os.path.join(PROJECT_ROOT, "outputs", "models", "class_names.json")
 
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
@@ -31,7 +31,10 @@ app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024  # 8 MB
 
 # ---------------- Load model & classes ----------------
 print("Loading model...")
-model = tf.keras.models.load_model(MODEL_PATH)
+interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+interpreter.allocate_tensors()
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 print("Model loaded from:", MODEL_PATH)
 
 if os.path.exists(CLASS_JSON):
@@ -153,7 +156,9 @@ def preprocess_pil_image(pil_img):
 
 def predict_image(pil_img):
     x = preprocess_pil_image(pil_img)
-    preds = model.predict(x, verbose=0)[0]
+    interpreter.set_tensor(input_details[0]['index'], x)
+    interpreter.invoke()
+    preds = interpreter.get_tensor(output_details[0]['index'])[0]
     idx = int(np.argmax(preds))
     conf = float(np.max(preds)) * 100.0
     label = CLASS_NAMES[idx] if idx < len(CLASS_NAMES) else str(idx)
